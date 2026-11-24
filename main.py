@@ -22,6 +22,8 @@ if length < 1 or length > 160:
     raise SystemExit(f"entry length {length} code points is outside 1-160")
 if not ENTRY.strip():
     raise SystemExit("entry must not be only whitespace")
+if ENTRY != ENTRY.strip():
+    raise SystemExit("entry must not have leading or trailing whitespace")
 if "\n" in ENTRY or "\r" in ENTRY:
     raise SystemExit("entry must be a single line")
 
@@ -44,5 +46,9 @@ if out_dir != Path("/output"):
 # Verify the write round-trips byte-for-byte before reporting success.
 if entry_path.read_bytes() != ENTRY.encode("utf-8"):
     raise SystemExit("entry.txt does not match the entry text after writing")
+
+# Re-read as text and confirm it is still exactly one line.
+if entry_path.read_text(encoding="utf-8").count("\n") != 0:
+    raise SystemExit("entry.txt must be a single line")
 
 print(f"wrote entry.txt ({length} code points)")
